@@ -1,15 +1,17 @@
-# Używamy lekkiego obrazu Pythona
-FROM python:3.9-slim
+FROM python:3.9-slim as builder
 
-# Ustawiamy katalog roboczy w kontenerze
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --user -r requirements.txt
+
+
+FROM python:3.9-slim
 WORKDIR /app
 
-# Kopiujemy plik z wymaganiami i instalujemy biblioteki
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Kopiujemy resztę kodu aplikacji
+COPY --from=builder /root/.local /root/.local
 COPY . .
 
-# Uruchamiamy aplikację
+
+ENV PATH=/root/.local/bin:$PATH
 CMD ["python", "app.py"]

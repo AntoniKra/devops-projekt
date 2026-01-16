@@ -1,0 +1,35 @@
+name: CI Pipeline
+
+# Kiedy ma się uruchamiać? Przy każdym wypchnięciu kodu.
+on: [push]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pobranie kodu z repozytorium
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Instalacja Pythona (do testów lintera)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      # 3. Instalacja zależności
+      - name: Install dependencies
+        run: |
+          pip install flake8
+
+      # 4. Sprawdzenie jakości kodu (LINT) - Wymóg na 3.0
+      - name: Lint with flake8
+        run: |
+          # Sprawdza błędy składniowe i stylistyczne
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # 5. Próba zbudowania obrazu Docker - Wymóg na 3.0
+      - name: Build Docker image
+        run: |
+          docker build -t moja-aplikacja .
